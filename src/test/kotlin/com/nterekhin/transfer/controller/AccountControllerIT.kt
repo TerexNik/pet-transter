@@ -1,6 +1,7 @@
 package com.nterekhin.transfer.controller
 
 import com.nterekhin.transfer.FullContextTest
+import com.nterekhin.transfer.model.dto.AccountDTO
 import com.nterekhin.transfer.model.entity.Account
 import com.nterekhin.transfer.repository.AccountRepository
 import org.junit.jupiter.api.AfterAll
@@ -11,7 +12,10 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.test.web.reactive.server.WebTestClient
+import org.springframework.test.web.reactive.server.body
+import org.springframework.test.web.reactive.server.expectBody
 import org.springframework.util.ResourceUtils
+import reactor.core.publisher.Mono
 import java.time.LocalDateTime
 import javax.persistence.Column
 
@@ -57,5 +61,22 @@ class AccountControllerIT : FullContextTest() {
     fun shouldGetNoContent() {
         webTestClient.get().uri("/account/2").exchange()
             .expectStatus().isNoContent
+    }
+
+    @Test
+    fun shouldSaveAccount() {
+        val account = AccountDTO(
+            name = "William",
+            surname = "Shwarts",
+            balance = 120500.3971,
+        )
+
+        webTestClient.post().uri("/account")
+            .body(Mono.just(account)).exchange()
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$.name").isEqualTo("William")
+            .jsonPath("$.surname").isEqualTo("Shwarts")
+            .jsonPath("$.balance").isEqualTo(120500.3971)
     }
 }
