@@ -1,16 +1,14 @@
 package com.nterekhin.transfer.model.entity
 
 import java.time.LocalDateTime
-import javax.persistence.Column
-import javax.persistence.Entity
-import javax.persistence.Id
-import javax.persistence.Table
+import javax.persistence.*
 
 @Entity
 @Table(name = "account")
 data class Account(
     @Id
     @Column(nullable = false, unique = true)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Int? = null,
     @Column
     val name: String? = null,

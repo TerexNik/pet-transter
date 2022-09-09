@@ -18,4 +18,10 @@ class AccountService(
             null
         }
     }
+
+    fun createAccount(accountDTO: AccountDTO): AccountDTO {
+        val entity = mapper.toEntity(accountDTO)
+        val saved = repository.save(entity)
+        return mapper.toDTO(saved)
+    }
 }

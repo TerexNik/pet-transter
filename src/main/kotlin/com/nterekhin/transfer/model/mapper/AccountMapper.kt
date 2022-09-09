@@ -3,6 +3,8 @@ package com.nterekhin.transfer.model.mapper
 import com.nterekhin.transfer.model.dto.AccountDTO
 import com.nterekhin.transfer.model.entity.Account
 import org.springframework.stereotype.Component
+import java.time.LocalDateTime
+import javax.persistence.Column
 
 @Component
 class AccountMapper {
@@ -13,5 +15,13 @@ class AccountMapper {
         createDate = account.createDate,
         lastUpdate = account.lastUpdate,
         balance = account.balance,
+    )
+
+    fun toEntity(accountDTO: AccountDTO) = Account(
+        name = accountDTO.name,
+        surname = accountDTO.surname,
+        createDate = LocalDateTime.now(),
+        lastUpdate = LocalDateTime.now(),
+        balance = accountDTO.balance,
     )
 }
