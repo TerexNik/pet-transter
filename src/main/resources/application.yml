@@ -39,7 +39,6 @@ spring:
     driverClassName: org.h2.Driver
     username: user
     password:
-    schemaName: testdb
 
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
