@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.liquibase.org/xml/ns/dbchangelog">
+
+    <changeSet id="0.1: init table transfers" author="nterehin">
+        <sqlFile path="/db/changelog/0.1/schema.sql"/>
+        <rollback>
+            <sqlFile path="/db/changelog/0.1/rollback.sql"/>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>
