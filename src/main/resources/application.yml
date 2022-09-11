@@ -5,8 +5,12 @@ datasource:
   password: postgres
   databaseName: postgres
   schemaName: transfer
-
+springdoc:
+  api-docs:
+    path: /api-docs
 spring:
+  application:
+    name: transfer
   datasource:
     username: ${datasource.username}
     password: ${datasource.password}
@@ -29,13 +33,17 @@ spring:
 
 ---
 
+logging.level:
+  ROOT: INFO
+  org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
+
 spring:
   config:
     activate:
       on-profile: test
 
   datasource:
-    url: "jdbc:h2:mem:testdb"
+    url: "jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;INIT=CREATE SCHEMA IF NOT EXISTS testdb"
     driverClassName: org.h2.Driver
     username: user
     password:
@@ -45,10 +53,11 @@ spring:
     show-sql: true
 
   liquibase:
-    url: "jdbc:h2:mem:testdb"
+    url: "jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;INIT=CREATE SCHEMA IF NOT EXISTS testdb"
     driver-class-name: org.h2.Driver
     user: user
     password:
+    default-schema: testdb
 
 
   h2:

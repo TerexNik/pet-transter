@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <springProperty name="moduleName" source="spring.application.name"/>
+    <logger name="com.nterekhin.transfer" level="INFO"/>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <charset>utf-8</charset>
+            <Pattern>%d{dd-MM HH:mm:ss:SSS} %blue(%thread) %green(${moduleName}) %highlight([%p]) %cyan(%c{32}) - %m%n
+            </Pattern>
+        </encoder>
+    </appender>
+    <root level="WARN">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+
+</configuration>
