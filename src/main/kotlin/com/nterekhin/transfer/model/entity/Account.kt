@@ -17,7 +17,7 @@ data class Account(
     @Column
     val createDate: LocalDateTime? = LocalDateTime.now(),
     @Column
-    val lastUpdate: LocalDateTime? = LocalDateTime.now(),
+    var lastUpdate: LocalDateTime? = LocalDateTime.now(),
     @Column
-    val balance: Double? = null,
+    var balance: Double? = null,
 )

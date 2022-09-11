@@ -15,13 +15,13 @@ import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.body
 import reactor.core.publisher.Mono
-import java.text.SimpleDateFormat
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @AutoConfigureWebTestClient
 class AccountControllerIT : FullContextTest() {
 
-    private val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+    private val dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
 
     @Autowired
     lateinit var repository: AccountRepository
@@ -105,28 +105,75 @@ class AccountControllerIT : FullContextTest() {
         val amount = 500.09
         //when
         //then
-        webTestClient.post().uri("/transfer?from={accountId}&to={accountId}", accountFrom.id, accountTo.id)
+        webTestClient.post().uri("/account/transfer?from={accountId}&to={accountId}", accountFrom.id, accountTo.id)
             .body(Mono.just(amount)).exchange()
             .expectStatus().isOk
             .expectHeader().contentType(MediaType.APPLICATION_JSON)
-            .expectHeader().value(HttpHeaders.LAST_MODIFIED, Matchers.greaterThan(sdf.format(accountTo.lastUpdate)))
+            .expectHeader()
+            .value(HttpHeaders.LAST_MODIFIED, Matchers.greaterThan(accountTo.lastUpdate?.format(dtf) ?: ""))
             .expectBody()
-            .jsonPath("$.name").isEqualTo(accountTo.name ?: "")
-            .jsonPath("$.surname").isEqualTo(accountTo.surname ?: "")
-            .jsonPath("$.createDate").isEqualTo(accountTo.createDate ?: "")
-            .jsonPath("$.balance").isEqualTo(accountTo.balance ?: "")
+            .jsonPath("$.name").isEqualTo(accountFrom.name ?: "")
+            .jsonPath("$.surname").isEqualTo(accountFrom.surname ?: "")
+            .jsonPath("$.createDate").isEqualTo(accountFrom.createDate?.format(dtf) ?: "")
+            .jsonPath("$.balance").isEqualTo(accountFrom.balance?.minus(amount) ?: "")
 
 
         //check other account balance
         webTestClient.get().uri("/account/${accountTo.id}").exchange()
             .expectStatus().isOk
             .expectHeader().contentType(MediaType.APPLICATION_JSON)
-            .expectHeader().value(HttpHeaders.LAST_MODIFIED, Matchers.greaterThan(sdf.format(accountFrom.lastUpdate)))
+            .expectBody()
+            .jsonPath("$.name").isEqualTo(accountTo.name ?: "")
+            .jsonPath("$.surname").isEqualTo(accountTo.surname ?: "")
+            .jsonPath("$.createDate").isEqualTo(accountTo.createDate?.format(dtf) ?: "")
+            .jsonPath("$.lastUpdate").value(Matchers.greaterThan(accountTo.lastUpdate?.format(dtf) ?: ""))
+            .jsonPath("$.balance").isEqualTo(accountTo.balance?.plus(amount) ?: "")
+    }
+
+    @Test
+    fun shouldGetBadRequestWhenTransferBalance() {
+        //given
+        val accountFrom = repository.save(
+            Account(
+                name = "William",
+                surname = "Shwarts",
+                balance = 500.0871,
+            )
+        )
+        val accountTo = repository.save(
+            Account(
+                name = "John",
+                surname = "Smit",
+                balance = 345.0321,
+            )
+        )
+        val amount = 500.09
+        //when
+        //then
+        webTestClient.post().uri("/account/transfer?from={accountId}&to={accountId}", accountFrom.id, accountTo.id)
+            .body(Mono.just(amount)).exchange()
+            .expectStatus().isBadRequest
+
+
+        //check accounts balances not changed
+        webTestClient.get().uri("/account/${accountFrom.id}").exchange()
+            .expectStatus().isOk
+            .expectHeader().contentType(MediaType.APPLICATION_JSON)
             .expectBody()
             .jsonPath("$.name").isEqualTo(accountFrom.name ?: "")
             .jsonPath("$.surname").isEqualTo(accountFrom.surname ?: "")
-            .jsonPath("$.createDate").isEqualTo(accountFrom.createDate ?: "")
-            .jsonPath("$.lastUpdate").isEqualTo(accountFrom.lastUpdate ?: "")
+            .jsonPath("$.createDate").isEqualTo(accountFrom.createDate?.format(dtf) ?: "")
+            .jsonPath("$.lastUpdate").isEqualTo(accountFrom.lastUpdate?.format(dtf) ?: "")
             .jsonPath("$.balance").isEqualTo(accountFrom.balance ?: "")
+
+        webTestClient.get().uri("/account/${accountTo.id}").exchange()
+            .expectStatus().isOk
+            .expectHeader().contentType(MediaType.APPLICATION_JSON)
+            .expectBody()
+            .jsonPath("$.name").isEqualTo(accountTo.name ?: "")
+            .jsonPath("$.surname").isEqualTo(accountTo.surname ?: "")
+            .jsonPath("$.createDate").isEqualTo(accountTo.createDate?.format(dtf) ?: "")
+            .jsonPath("$.lastUpdate").isEqualTo(accountTo.lastUpdate?.format(dtf) ?: "")
+            .jsonPath("$.balance").isEqualTo(accountTo.balance ?: "")
     }
 }
