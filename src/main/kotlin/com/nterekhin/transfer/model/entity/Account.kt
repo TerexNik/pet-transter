@@ -15,9 +15,9 @@ data class Account(
     @Column
     val surname: String? = null,
     @Column
-    val createDate: LocalDateTime? = null,
+    val createDate: LocalDateTime? = LocalDateTime.now(),
     @Column
-    val lastUpdate: LocalDateTime? = null,
+    val lastUpdate: LocalDateTime? = LocalDateTime.now(),
     @Column
     val balance: Double? = null,
 )
